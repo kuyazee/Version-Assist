@@ -62,7 +62,11 @@ The tool supports several versioning options:
    - Minor version (0.x.0): New features, backwards compatible
    - Patch version (0.0.x): Bug fixes, backwards compatible
 
-2. Build Number Formats:
+2. Version Formats:
+   - With build number: `1.0.0+1`
+   - Without build number: `1.0.0`
+
+3. Build Number Options:
    - Simple increment: Increases the build number by 1
    - Date-based format: Uses format `yymmddbn` where:
      - `yy`: Year (e.g., 24 for 2024)
@@ -75,14 +79,20 @@ For detailed information about version management, including examples and best p
 Basic usage examples:
 
 ```sh
-# Semantic Version Bumping
-$ version_assist bump --major    # 1.0.0 -> 2.0.0
-$ version_assist bump --minor    # 1.0.0 -> 1.1.0
-$ version_assist bump --patch    # 1.0.0 -> 1.0.1
+# Semantic Version Bumping (with build number)
+$ version_assist bump --major    # 1.0.0+1 -> 2.0.0+2
+$ version_assist bump --minor    # 1.0.0+1 -> 1.1.0+2
+$ version_assist bump --patch    # 1.0.0+1 -> 1.0.1+2
+
+# Semantic Version Bumping (without build number)
+$ version_assist bump --major --no-build-number-update  # 1.0.0 -> 2.0.0
+$ version_assist bump --minor --no-build-number-update  # 1.0.0 -> 1.1.0
+$ version_assist bump --patch --no-build-number-update  # 1.0.0 -> 1.0.1
 
 # Build Number Options
-$ version_assist bump                  # Simple increment
-$ version_assist bump --date-based-build-number     # Date-based format
+$ version_assist bump                           # Simple increment
+$ version_assist bump --date-based-build-number # Date-based format
+$ version_assist bump --no-build-number-update  # Keep current build number
 
 # Preview changes without making them
 $ version_assist bump --dry-run

@@ -28,12 +28,11 @@ dart run /path/to/version_assist/bin/version_assist.dart bump [options]
 
 ## Version Format
 
-The version format follows the standard Dart/Flutter convention:
-```
-version: {major}.{minor}.{patch}+{build}
-```
-
-Example: `1.0.0+1`
+The tool supports two version formats:
+1. With build number: `{major}.{minor}.{patch}+{build}`
+   - Example: `1.0.0+1`
+2. Without build number: `{major}.{minor}.{patch}`
+   - Example: `1.0.0`
 
 ## Version Components
 
@@ -42,7 +41,7 @@ Example: `1.0.0+1`
 - **Minor** (0.x.0): Increment when adding functionality in a backwards compatible manner
 - **Patch** (0.0.x): Increment when making backwards compatible bug fixes
 
-### Build Number
+### Build Number (Optional)
 Two formats available:
 1. **Simple Increment**: Increases the build number by 1
 2. **Date-based**: Format `yymmddbn` where:
@@ -56,57 +55,58 @@ Two formats available:
 ### Semantic Version Updates
 
 ```bash
-# Using global CLI
+# With build number increment
 version_assist bump --major    # 1.0.0+1 -> 2.0.0+2
 version_assist bump --minor    # 1.0.0+1 -> 1.1.0+2
 version_assist bump --patch    # 1.0.0+1 -> 1.0.1+2
 
-# Using local source
-dart run bin/version_assist.dart bump --major
-dart run bin/version_assist.dart bump --minor
-dart run bin/version_assist.dart bump --patch
+# Without build number
+version_assist bump --major --no-build-number-update  # 1.0.0 -> 2.0.0
+version_assist bump --minor --no-build-number-update  # 1.0.0 -> 1.1.0
+version_assist bump --patch --no-build-number-update  # 1.0.0 -> 1.0.1
 ```
 
 ### Build Number Updates
 
 ```bash
-# Using global CLI
-version_assist bump                           # Simple increment
-version_assist bump --date-based-build-number # Date-based format
+# Simple increment
+version_assist bump                           # 1.0.0+1 -> 1.0.0+2
 
-# Using local source
-dart run bin/version_assist.dart bump
-dart run bin/version_assist.dart bump --date-based-build-number
+# Date-based format
+version_assist bump --date-based-build-number # 1.0.0+1 -> 1.0.0+24020700
+
+# Keep current build number
+version_assist bump --no-build-number-update  # 1.0.0+1 -> 1.0.0+1
+                                            # 1.0.0 -> 1.0.0
 ```
 
 ### Combined Updates
 
-You can combine semantic version updates with build number formats:
+You can combine semantic version updates with build number options:
 
 ```bash
-# Using global CLI
-version_assist bump --major --date-based-build-number
-version_assist bump --minor --date-based-build-number
-version_assist bump --patch --date-based-build-number
+# Major version with date-based build number
+version_assist bump --major --date-based-build-number  # 1.0.0+1 -> 2.0.0+24020700
 
-# Using local source
-dart run bin/version_assist.dart bump --major --date-based-build-number
-dart run bin/version_assist.dart bump --minor --date-based-build-number
-dart run bin/version_assist.dart bump --patch --date-based-build-number
+# Minor version keeping current build number
+version_assist bump --minor --no-build-number-update   # 1.0.0+1 -> 1.1.0+1
+
+# Patch version without build number
+version_assist bump --patch --no-build-number-update   # 1.0.0 -> 1.0.1
 ```
+
+Note: `--date-based-build-number` and `--no-build-number-update` cannot be used together.
 
 ### Preview Changes
 
 Use the dry-run option to preview changes without applying them:
 
 ```bash
-# Using global CLI
-version_assist bump --major --dry-run
-version_assist bump --date-based-build-number --dry-run
+# Preview with build number
+version_assist bump --major --dry-run                 # Shows: 1.0.0+1 -> 2.0.0+2
 
-# Using local source
-dart run bin/version_assist.dart bump --major --dry-run
-dart run bin/version_assist.dart bump --date-based-build-number --dry-run
+# Preview without build number
+version_assist bump --major --no-build-number-update --dry-run  # Shows: 1.0.0 -> 2.0.0
 ```
 
 ### Custom Pubspec Location
@@ -114,11 +114,7 @@ dart run bin/version_assist.dart bump --date-based-build-number --dry-run
 If your pubspec.yaml is not in the current directory:
 
 ```bash
-# Using global CLI
 version_assist bump --path=/path/to/pubspec.yaml
-
-# Using local source
-dart run bin/version_assist.dart bump --path=/path/to/pubspec.yaml
 ```
 
 ## Automatic Git Operations
@@ -134,33 +130,38 @@ When you bump the version, the tool automatically:
 
 ## Examples
 
-### Example 1: Major Version Release
+### Example 1: Package Version Without Build Number
 
-Starting version: `1.0.0+1`
+Starting version: `1.0.0`
 
 ```bash
-# Using global CLI
-version_assist bump --major
-
-# Using local source
-dart run bin/version_assist.dart bump --major
+version_assist bump --major --no-build-number-update
 ```
 
 Result:
-- New version: `2.0.0+2`
+- New version: `2.0.0`
 - Git commit created
-- Git tag '2.0.0+2' created
+- Git tag '2.0.0' created
 
-### Example 2: Date-based Build for Today
+### Example 2: Adding Build Number to Package Version
+
+Starting version: `1.0.0`
+
+```bash
+version_assist bump --major
+```
+
+Result:
+- New version: `2.0.0+1`
+- Git commit created
+- Git tag '2.0.0+1' created
+
+### Example 3: Date-based Build for Today
 
 Starting version: `1.0.0+1`
 
 ```bash
-# Using global CLI
 version_assist bump --date-based-build-number
-
-# Using local source
-dart run bin/version_assist.dart bump --date-based-build-number
 ```
 
 Result (if today is February 7, 2024):
@@ -168,26 +169,25 @@ Result (if today is February 7, 2024):
 - Git commit created
 - Git tag '1.0.0+24020700' created
 
-### Example 3: Minor Update with Date-based Build
+### Example 4: Minor Update Without Build Number
 
-Starting version: `1.0.0+24020700`
+Starting version: `1.0.0+1`
 
 ```bash
-# Using global CLI
-version_assist bump --minor --date-based-build-number
-
-# Using local source
-dart run bin/version_assist.dart bump --minor --date-based-build-number
+version_assist bump --minor --no-build-number-update
 ```
 
 Result:
-- New version: `1.1.0+24020701`
+- New version: `1.1.0+1`
 - Git commit created
-- Git tag '1.1.0+24020701' created
+- Git tag '1.1.0+1' created
 
 ## Quick Tips
 
 1. Always use `--dry-run` first to preview changes
 2. Use `--date-based-build-number` when you want to track builds by date
-3. Remember to pull latest changes before bumping versions
-4. The tool automatically handles git operations, no need for manual commits
+3. Use `--no-build-number-update` when:
+   - You want to maintain a version without build number
+   - You want to keep the current build number while updating the version
+4. Remember to pull latest changes before bumping versions
+5. The tool automatically handles git operations, no need for manual commits
