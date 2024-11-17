@@ -129,6 +129,8 @@ $ genhtml coverage/lcov.info -o coverage/
 $ open coverage/index.html
 ```
 
+For detailed information about our testing requirements (minimum 80% coverage), best practices, and guidelines, see our [Testing Documentation](docs/testing.md).
+
 ---
 
 [coverage_badge]: coverage_badge.svg
