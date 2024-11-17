@@ -54,31 +54,37 @@ version_assist bump
 
 ### Bump Version
 
-The tool supports two versioning formats:
+The tool supports several versioning options:
 
-1. Simple increment: Increases the build number by 1
-2. Date-based format: Uses format `yymmddbn` where:
-   - `yy`: Year (e.g., 24 for 2024)
-   - `mm`: Month (01-12)
-   - `dd`: Day (01-31)
-   - `bn`: Build number for the day (00-99)
+1. Semantic Versioning (major.minor.patch):
 
-Example date-based versions:
+   - Major version (x.0.0): Breaking changes
+   - Minor version (0.x.0): New features, backwards compatible
+   - Patch version (0.0.x): Bug fixes, backwards compatible
 
-- `24111700`: First build on Nov 17, 2024
-- `24111701`: Second build on Nov 17, 2024
+2. Build Number Formats:
+   - Simple increment: Increases the build number by 1
+   - Date-based format: Uses format `yymmddbn` where:
+     - `yy`: Year (e.g., 24 for 2024)
+     - `mm`: Month (01-12)
+     - `dd`: Day (01-31)
+     - `bn`: Build number for the day (00-99)
+
+For detailed information about version management, including examples and best practices, see our [Version Management Guide](docs/version_management.md).
+
+Basic usage examples:
 
 ```sh
-# Simple increment
-$ version_assist bump
+# Semantic Version Bumping
+$ version_assist bump --major    # 1.0.0 -> 2.0.0
+$ version_assist bump --minor    # 1.0.0 -> 1.1.0
+$ version_assist bump --patch    # 1.0.0 -> 1.0.1
 
-# Date-based versioning (e.g., 24111700)
-$ version_assist bump --date-based
+# Build Number Options
+$ version_assist bump                  # Simple increment
+$ version_assist bump --date-based-build-number     # Date-based format
 
-# Specify custom pubspec.yaml path
-$ version_assist bump --path path/to/pubspec.yaml
-
-# Preview changes without making them (dry run)
+# Preview changes without making them
 $ version_assist bump --dry-run
 ```
 
@@ -87,7 +93,7 @@ The tool will automatically:
 1. Update the version in pubspec.yaml
 2. Create a git commit with the message format:
    ```
-   build(versionCode+buildNumber): Automated version bump using version_assist
+   build(version): Bump version to {new_version}
    ```
 3. Create a git tag with the new version
 
