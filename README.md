@@ -1,6 +1,7 @@
 ## version_assist
 
 ![coverage][coverage_badge]
+[![pub package][pub_version_badge]][pub_package_link]
 [![style: very good analysis][very_good_analysis_badge]][very_good_analysis_link]
 [![License: MIT][license_badge]][license_link]
 
@@ -17,17 +18,20 @@ dart pub global activate version_assist
 ## Local Development 🛠️
 
 1. Clone the repository:
+
 ```sh
-git clone <repository-url>
+git clone git@github.com:kuyazee/Version-Assist.git
 cd version_assist
 ```
 
 2. Install dependencies:
+
 ```sh
 dart pub get
 ```
 
 3. Run locally during development:
+
 ```sh
 # Run directly with Dart
 dart run bin/version_assist.dart bump
@@ -37,6 +41,7 @@ dart run bin/version_assist.dart bump --path=/path/to/pubspec.yaml
 ```
 
 4. Activate locally for testing:
+
 ```sh
 # From the version_assist directory
 dart pub global activate --source path .
@@ -59,6 +64,7 @@ The tool supports two versioning formats:
    - `bn`: Build number for the day (00-99)
 
 Example date-based versions:
+
 - `24111700`: First build on Nov 17, 2024
 - `24111701`: Second build on Nov 17, 2024
 
@@ -77,6 +83,7 @@ $ version_assist bump --dry-run
 ```
 
 The tool will automatically:
+
 1. Update the version in pubspec.yaml
 2. Create a git commit with the message format:
    ```
@@ -125,6 +132,8 @@ $ open coverage/index.html
 ---
 
 [coverage_badge]: coverage_badge.svg
+[pub_version_badge]: https://img.shields.io/badge/pub-v0.0.1-blue
+[pub_package_link]: https://pub.dev/packages/version_assist
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license_link]: https://opensource.org/licenses/MIT
 [very_good_analysis_badge]: https://img.shields.io/badge/style-very_good_analysis-B22C89.svg
