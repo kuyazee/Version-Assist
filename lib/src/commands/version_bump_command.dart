@@ -14,18 +14,24 @@ class VersionBumpCommand extends Command<int> {
     required Logger logger,
   }) : _logger = logger {
     argParser
-      ..addOption('path',
-          abbr: 'p',
-          help: 'Path to pubspec.yaml',
-          defaultsTo: path.join('pubspec.yaml'))
-      ..addFlag('dry-run',
-          abbr: 'd',
-          help: 'Show what would happen without making changes',
-          negatable: false)
-      ..addFlag('date-based',
-          abbr: 'b',
-          help: 'Use date-based build number format (yymmddbn)',
-          negatable: false);
+      ..addOption(
+        'path',
+        abbr: 'p',
+        help: 'Path to pubspec.yaml',
+        defaultsTo: path.join('pubspec.yaml'),
+      )
+      ..addFlag(
+        'dry-run',
+        abbr: 'd',
+        help: 'Show what would happen without making changes',
+        negatable: false,
+      )
+      ..addFlag(
+        'date-based',
+        abbr: 'b',
+        help: 'Use date-based build number format (yymmddbn)',
+        negatable: false,
+      );
   }
 
   final Logger _logger;
@@ -95,7 +101,8 @@ class VersionBumpCommand extends Command<int> {
 
       if (isDryRun) {
         _logger.info(
-            'Would bump version from $baseVersion+$currentBuildNumber to $newVersion');
+          'Would bump version from $baseVersion+$currentBuildNumber to $newVersion',
+        );
         return ExitCode.success.code;
       }
 
@@ -103,7 +110,10 @@ class VersionBumpCommand extends Command<int> {
       await file.writeAsString(newContent);
 
       // Run git commands
-      final gitAdd = await Process.run('git', ['add', pubspecPath]);
+      final gitAdd = await Process.run(
+        'git',
+        ['add', pubspecPath],
+      );
       if (gitAdd.exitCode != 0) {
         _logger.err('Error during git add: ${gitAdd.stderr}');
         return ExitCode.software.code;
@@ -112,14 +122,19 @@ class VersionBumpCommand extends Command<int> {
       final commitMessage =
           'build(versionCode+$newBuildNumber): Automated version bump using version_assist';
       final gitCommit = await Process.run(
-          'git', ['commit', '-m', commitMessage, pubspecPath]);
+        'git',
+        ['commit', '-m', commitMessage, pubspecPath],
+      );
 
       if (gitCommit.exitCode != 0) {
         _logger.err('Error during git commit: ${gitCommit.stderr}');
         return ExitCode.software.code;
       }
 
-      final gitTag = await Process.run('git', ['tag', newVersion]);
+      final gitTag = await Process.run(
+        'git',
+        ['tag', newVersion],
+      );
 
       if (gitTag.exitCode != 0) {
         _logger.err('Error during git tag: ${gitTag.stderr}');
