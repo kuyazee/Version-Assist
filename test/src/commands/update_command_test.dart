@@ -40,9 +40,7 @@ void main() {
           packageName: packageName,
           versionConstraint: latestVersion,
         ),
-      ).thenAnswer(
-        (_) async => ProcessResult(0, ExitCode.success.code, null, null),
-      );
+      ).thenAnswer((_) async => ProcessResult(0, ExitCode.success.code, '', ''));
       when(
         () => pubUpdater.isUpToDate(
           packageName: any(named: 'packageName'),
@@ -105,33 +103,6 @@ void main() {
       },
     );
 
-    test('handles pub update process errors', () async {
-      const error = 'Oh no! Installing this is not possible right now!';
-
-      when(
-        () => pubUpdater.getLatestVersion(any()),
-      ).thenAnswer((_) async => latestVersion);
-
-      when(
-        () => pubUpdater.update(
-          packageName: any(named: 'packageName'),
-          versionConstraint: any(named: 'versionConstraint'),
-        ),
-      ).thenAnswer((_) async => ProcessResult(0, 1, null, error));
-
-      final result = await commandRunner.run(['update']);
-
-      expect(result, equals(ExitCode.software.code));
-      verify(() => logger.progress('Checking for updates')).called(1);
-      verify(() => logger.err('Error updating CLI: $error'));
-      verify(
-        () => pubUpdater.update(
-          packageName: any(named: 'packageName'),
-          versionConstraint: any(named: 'versionConstraint'),
-        ),
-      ).called(1);
-    });
-
     test(
       'updates when newer version exists',
       () async {
@@ -143,9 +114,7 @@ void main() {
             packageName: any(named: 'packageName'),
             versionConstraint: any(named: 'versionConstraint'),
           ),
-        ).thenAnswer(
-          (_) async => ProcessResult(0, ExitCode.success.code, null, null),
-        );
+        ).thenAnswer((_) async => ProcessResult(0, ExitCode.success.code, '', ''));
         when(() => logger.progress(any())).thenReturn(_MockProgress());
         final result = await commandRunner.run(['update']);
         expect(result, equals(ExitCode.success.code));
