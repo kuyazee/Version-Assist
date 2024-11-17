@@ -27,9 +27,24 @@ class VersionBumpCommand extends Command<int> {
         negatable: false,
       )
       ..addFlag(
-        'date-based',
+        'date-based-build-number',
         abbr: 'b',
         help: 'Use date-based build number format (yymmddbn)',
+        negatable: false,
+      )
+      ..addFlag(
+        'major',
+        help: 'Bump major version (x.0.0)',
+        negatable: false,
+      )
+      ..addFlag(
+        'minor',
+        help: 'Bump minor version (0.x.0)',
+        negatable: false,
+      )
+      ..addFlag(
+        'patch',
+        help: 'Bump patch version (0.0.x)',
         negatable: false,
       );
   }
@@ -59,12 +74,51 @@ class VersionBumpCommand extends Command<int> {
     return '${datePrefix}00';
   }
 
+  /// Bumps the version number based on semver rules
+  String _bumpVersion(String version, {
+    bool major = false,
+    bool minor = false,
+    bool patch = false,
+  }) {
+    final parts = version.split('.');
+    if (parts.length != 3) {
+      throw FormatException('Invalid version format: $version');
+    }
+
+    var majorVersion = int.parse(parts[0]);
+    var minorVersion = int.parse(parts[1]);
+    var patchVersion = int.parse(parts[2]);
+
+    if (major) {
+      majorVersion++;
+      minorVersion = 0;
+      patchVersion = 0;
+    } else if (minor) {
+      minorVersion++;
+      patchVersion = 0;
+    } else if (patch) {
+      patchVersion++;
+    }
+
+    return '$majorVersion.$minorVersion.$patchVersion';
+  }
+
   @override
   Future<int> run() async {
     try {
       final pubspecPath = argResults?['path'] as String;
       final isDryRun = argResults?['dry-run'] as bool;
-      final isDateBased = argResults?['date-based'] as bool;
+      final isDateBased = argResults?['date-based-build-number'] as bool;
+      final isMajor = argResults?['major'] as bool;
+      final isMinor = argResults?['minor'] as bool;
+      final isPatch = argResults?['patch'] as bool;
+
+      // Validate version bump flags
+      final versionFlagCount = [isMajor, isMinor, isPatch].where((f) => f).length;
+      if (versionFlagCount > 1) {
+        _logger.err('Only one of --major, --minor, or --patch can be specified');
+        return ExitCode.usage.code;
+      }
 
       // Read the current pubspec file
       final file = File(pubspecPath);
@@ -84,8 +138,18 @@ class VersionBumpCommand extends Command<int> {
         return ExitCode.usage.code;
       }
 
-      final baseVersion = match.group(1);
+      final baseVersion = match.group(1)!;
       final currentBuildNumber = match.group(2)!;
+
+      // Generate new version based on flags
+      final newBaseVersion = versionFlagCount > 0
+          ? _bumpVersion(
+              baseVersion,
+              major: isMajor,
+              minor: isMinor,
+              patch: isPatch,
+            )
+          : baseVersion;
 
       // Generate new build number based on format
       final newBuildNumber = isDateBased
@@ -93,7 +157,7 @@ class VersionBumpCommand extends Command<int> {
           : (int.parse(currentBuildNumber) + 1).toString();
 
       // Create new version string
-      final newVersion = '$baseVersion+$newBuildNumber';
+      final newVersion = '$newBaseVersion+$newBuildNumber';
 
       // Replace the version in the content
       final newContent =
@@ -120,7 +184,7 @@ class VersionBumpCommand extends Command<int> {
       }
 
       final commitMessage =
-          'build(versionCode+$newBuildNumber): Automated version bump using version_assist';
+          'build(version): Bump version to $newVersion';
       final gitCommit = await Process.run(
         'git',
         ['commit', '-m', commitMessage, pubspecPath],
