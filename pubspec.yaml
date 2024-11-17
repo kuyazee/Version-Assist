@@ -1,6 +1,6 @@
 name: version_assist
 description: A CLI tool to bump Flutter project versions
-version: 0.0.1
+version: 0.1.0
 repository: https://github.com/kuyazee/VersionAssist
 homepage: https://github.com/kuyazee/VersionAssist
 publish_to: none
