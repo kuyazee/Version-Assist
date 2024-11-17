@@ -33,6 +33,11 @@ class VersionBumpCommand extends Command<int> {
         negatable: false,
       )
       ..addFlag(
+        'no-build-number-update',
+        help: 'Keep the current build number or use version without build number',
+        negatable: false,
+      )
+      ..addFlag(
         'major',
         help: 'Bump major version (x.0.0)',
         negatable: false,
@@ -112,11 +117,20 @@ class VersionBumpCommand extends Command<int> {
       final isMajor = argResults?['major'] as bool;
       final isMinor = argResults?['minor'] as bool;
       final isPatch = argResults?['patch'] as bool;
+      final noBuildNumberUpdate = argResults?['no-build-number-update'] as bool;
 
       // Validate version bump flags
       final versionFlagCount = [isMajor, isMinor, isPatch].where((f) => f).length;
       if (versionFlagCount > 1) {
         _logger.err('Only one of --major, --minor, or --patch can be specified');
+        return ExitCode.usage.code;
+      }
+
+      // Validate build number flags
+      if (isDateBased && noBuildNumberUpdate) {
+        _logger.err(
+          'Cannot use --date-based-build-number with --no-build-number-update',
+        );
         return ExitCode.usage.code;
       }
 
@@ -129,8 +143,8 @@ class VersionBumpCommand extends Command<int> {
 
       final content = await file.readAsString();
 
-      // Parse the version
-      final versionPattern = RegExp(r'version:\s+(\d+\.\d+\.\d+)\+(\d+)');
+      // Parse the version - support both formats: x.y.z and x.y.z+build
+      final versionPattern = RegExp(r'version:\s+(\d+\.\d+\.\d+)(?:\+(\d+))?');
       final match = versionPattern.firstMatch(content);
 
       if (match == null) {
@@ -139,7 +153,8 @@ class VersionBumpCommand extends Command<int> {
       }
 
       final baseVersion = match.group(1)!;
-      final currentBuildNumber = match.group(2)!;
+      final currentBuildNumber = match.group(2);
+      final hasBuildNumber = currentBuildNumber != null;
 
       // Generate new version based on flags
       final newBaseVersion = versionFlagCount > 0
@@ -151,21 +166,31 @@ class VersionBumpCommand extends Command<int> {
             )
           : baseVersion;
 
-      // Generate new build number based on format
-      final newBuildNumber = isDateBased
-          ? _generateDateBasedBuildNumber(currentBuildNumber)
-          : (int.parse(currentBuildNumber) + 1).toString();
+      // Determine if we should include a build number in the new version
+      final includeBuildNumber = !noBuildNumberUpdate || isDateBased || hasBuildNumber;
 
-      // Create new version string
-      final newVersion = '$newBaseVersion+$newBuildNumber';
+      String newVersion;
+      if (includeBuildNumber) {
+        final newBuildNumber = noBuildNumberUpdate
+            ? (currentBuildNumber ?? '1')
+            : isDateBased
+                ? _generateDateBasedBuildNumber(currentBuildNumber ?? '1')
+                : ((int.parse(currentBuildNumber ?? '0') + 1).toString());
+        newVersion = '$newBaseVersion+$newBuildNumber';
+      } else {
+        newVersion = newBaseVersion;
+      }
 
       // Replace the version in the content
       final newContent =
           content.replaceFirst(versionPattern, 'version: $newVersion');
 
       if (isDryRun) {
+        final currentVersion = hasBuildNumber 
+            ? '$baseVersion+$currentBuildNumber'
+            : baseVersion;
         _logger.info(
-          'Would bump version from $baseVersion+$currentBuildNumber to $newVersion',
+          'Would bump version from $currentVersion to $newVersion',
         );
         return ExitCode.success.code;
       }
