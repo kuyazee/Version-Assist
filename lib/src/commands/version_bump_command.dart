@@ -34,9 +34,13 @@ class VersionBumpCommand extends Command<int> {
         negatable: false,
       )
       ..addFlag(
-        'no-build-number-update',
-        help:
-            'Keep the current build number or use version without build number',
+        'add-build-number',
+        help: 'Add or update build number',
+        negatable: false,
+      )
+      ..addFlag(
+        'no-build-number',
+        help: 'Remove build number from version',
         negatable: false,
       )
       ..addFlag(
@@ -124,7 +128,8 @@ class VersionBumpCommand extends Command<int> {
       final isMajor = argResults?['major'] as bool;
       final isMinor = argResults?['minor'] as bool;
       final isPatch = argResults?['patch'] as bool;
-      final noBuildNumberUpdate = argResults?['no-build-number-update'] as bool;
+      final addBuildNumber = argResults?['add-build-number'] as bool;
+      final noBuildNumber = argResults?['no-build-number'] as bool;
       final autoCommit = argResults?['auto-commit'] as bool;
 
       // Validate version bump flags
@@ -137,9 +142,16 @@ class VersionBumpCommand extends Command<int> {
       }
 
       // Validate build number flags
-      if (isDateBased && noBuildNumberUpdate) {
+      if (isDateBased && noBuildNumber) {
         _logger.err(
-          'Cannot use --date-based-build-number with --no-build-number-update',
+          'Cannot use --date-based-build-number with --no-build-number',
+        );
+        return ExitCode.usage.code;
+      }
+
+      if (addBuildNumber && noBuildNumber) {
+        _logger.err(
+          'Cannot use --add-build-number with --no-build-number',
         );
         return ExitCode.usage.code;
       }
@@ -177,16 +189,19 @@ class VersionBumpCommand extends Command<int> {
           : baseVersion;
 
       // Determine if we should include a build number in the new version
-      final includeBuildNumber =
-          !noBuildNumberUpdate || isDateBased || hasBuildNumber;
+      final includeBuildNumber = !noBuildNumber && (
+        hasBuildNumber || // Keep existing build number
+        isDateBased || // Add date-based build number
+        addBuildNumber // Explicitly add build number
+      );
 
       String newVersion;
       if (includeBuildNumber) {
-        final newBuildNumber = noBuildNumberUpdate
-            ? (currentBuildNumber ?? '1')
-            : isDateBased
-                ? _generateDateBasedBuildNumber(currentBuildNumber ?? '1')
-                : ((int.parse(currentBuildNumber ?? '0') + 1).toString());
+        final newBuildNumber = isDateBased
+            ? _generateDateBasedBuildNumber(currentBuildNumber ?? '1')
+            : hasBuildNumber
+                ? ((int.parse(currentBuildNumber!) + 1).toString())
+                : '1';
         newVersion = '$newBaseVersion+$newBuildNumber';
       } else {
         newVersion = newBaseVersion;

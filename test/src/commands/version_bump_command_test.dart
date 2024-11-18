@@ -37,27 +37,7 @@ void main() {
       when(() => progress.fail(any())).thenReturn(null);
     });
 
-    test('bumps version without build number', () async {
-      const testPubspec = '''
-name: test_app
-description: A test application
-version: 1.0.0
-''';
-
-      final file = _MockFile();
-      when(file.exists).thenAnswer((_) async => true);
-      when(file.readAsString).thenAnswer((_) async => testPubspec);
-      when(() => file.writeAsString(any())).thenAnswer((_) async => file);
-
-      final exitCode = await commandRunner
-          .run(['bump', '--major', '--no-build-number-update']);
-
-      expect(exitCode, ExitCode.success.code);
-      verify(() => logger.success('Successfully bumped version to 2.0.0'))
-          .called(1);
-    });
-
-    test('adds build number to version without one', () async {
+    test('preserves version without build number', () async {
       const testPubspec = '''
 name: test_app
 description: A test application
@@ -72,11 +52,31 @@ version: 1.0.0
       final exitCode = await commandRunner.run(['bump', '--major']);
 
       expect(exitCode, ExitCode.success.code);
+      verify(() => logger.success('Successfully bumped version to 2.0.0'))
+          .called(1);
+    });
+
+    test('adds build number when explicitly requested', () async {
+      const testPubspec = '''
+name: test_app
+description: A test application
+version: 1.0.0
+''';
+
+      final file = _MockFile();
+      when(file.exists).thenAnswer((_) async => true);
+      when(file.readAsString).thenAnswer((_) async => testPubspec);
+      when(() => file.writeAsString(any())).thenAnswer((_) async => file);
+
+      final exitCode =
+          await commandRunner.run(['bump', '--major', '--add-build-number']);
+
+      expect(exitCode, ExitCode.success.code);
       verify(() => logger.success('Successfully bumped version to 2.0.0+1'))
           .called(1);
     });
 
-    test('bumps version with no build number update', () async {
+    test('removes build number when requested', () async {
       const testPubspec = '''
 name: test_app
 description: A test application
@@ -88,15 +88,35 @@ version: 1.0.0+1
       when(file.readAsString).thenAnswer((_) async => testPubspec);
       when(() => file.writeAsString(any())).thenAnswer((_) async => file);
 
-      final exitCode = await commandRunner
-          .run(['bump', '--major', '--no-build-number-update']);
+      final exitCode =
+          await commandRunner.run(['bump', '--major', '--no-build-number']);
 
       expect(exitCode, ExitCode.success.code);
-      verify(() => logger.success('Successfully bumped version to 2.0.0+1'))
+      verify(() => logger.success('Successfully bumped version to 2.0.0'))
           .called(1);
     });
 
-    test('validates date-based with no build number update', () async {
+    test('validates conflicting build number flags', () async {
+      const testPubspec = '''
+name: test_app
+description: A test application
+version: 1.0.0+1
+''';
+
+      final file = _MockFile();
+      when(file.exists).thenAnswer((_) async => true);
+      when(file.readAsString).thenAnswer((_) async => testPubspec);
+
+      final exitCode = await commandRunner
+          .run(['bump', '--add-build-number', '--no-build-number']);
+
+      expect(exitCode, ExitCode.usage.code);
+      verify(
+        () => logger.err('Cannot use --add-build-number with --no-build-number'),
+      ).called(1);
+    });
+
+    test('validates date-based with no build number', () async {
       const testPubspec = '''
 name: test_app
 description: A test application
@@ -110,13 +130,13 @@ version: 1.0.0+1
       final exitCode = await commandRunner.run([
         'bump',
         '--date-based-build-number',
-        '--no-build-number-update',
+        '--no-build-number',
       ]);
 
       expect(exitCode, ExitCode.usage.code);
       verify(
         () => logger.err(
-          'Cannot use --date-based-build-number with --no-build-number-update',
+          'Cannot use --date-based-build-number with --no-build-number',
         ),
       ).called(1);
     });
@@ -160,7 +180,7 @@ version: 1.0.0+1
       ).called(1);
     });
 
-    test('bumps major version', () async {
+    test('preserves build number when bumping version', () async {
       const testPubspec = '''
 name: test_app
 description: A test application
@@ -176,44 +196,6 @@ version: 1.0.0+1
 
       expect(exitCode, ExitCode.success.code);
       verify(() => logger.success('Successfully bumped version to 2.0.0+2'))
-          .called(1);
-    });
-
-    test('bumps minor version', () async {
-      const testPubspec = '''
-name: test_app
-description: A test application
-version: 1.0.0+1
-''';
-
-      final file = _MockFile();
-      when(file.exists).thenAnswer((_) async => true);
-      when(file.readAsString).thenAnswer((_) async => testPubspec);
-      when(() => file.writeAsString(any())).thenAnswer((_) async => file);
-
-      final exitCode = await commandRunner.run(['bump', '--minor']);
-
-      expect(exitCode, ExitCode.success.code);
-      verify(() => logger.success('Successfully bumped version to 1.1.0+2'))
-          .called(1);
-    });
-
-    test('bumps patch version', () async {
-      const testPubspec = '''
-name: test_app
-description: A test application
-version: 1.0.0+1
-''';
-
-      final file = _MockFile();
-      when(file.exists).thenAnswer((_) async => true);
-      when(file.readAsString).thenAnswer((_) async => testPubspec);
-      when(() => file.writeAsString(any())).thenAnswer((_) async => file);
-
-      final exitCode = await commandRunner.run(['bump', '--patch']);
-
-      expect(exitCode, ExitCode.success.code);
-      verify(() => logger.success('Successfully bumped version to 1.0.1+2'))
           .called(1);
     });
 
@@ -244,7 +226,7 @@ version: invalid.version.format
       verify(() => logger.err(any())).called(1);
     });
 
-    test('generates date-based build number for new day', () async {
+    test('generates date-based build number', () async {
       const testPubspec = '''
 name: test_app
 description: A test application
