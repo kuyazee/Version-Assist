@@ -74,10 +74,6 @@ The tool supports several versioning options:
      - `dd`: Day (01-31)
      - `bn`: Build number for the day (00-99)
 
-4. Git Operations:
-   - By default, version bumps do NOT create git commits or tags
-   - Use `--auto-commit` to enable automatic git operations
-
 For detailed information about version management, including examples and best practices, see our [Version Management Guide](docs/version_management.md).
 
 Basic usage examples:
@@ -98,35 +94,65 @@ $ version_assist bump                           # Simple increment
 $ version_assist bump --date-based-build-number # Date-based format
 $ version_assist bump --no-build-number-update  # Keep current build number
 
-# Git Operations
-$ version_assist bump --auto-commit             # Bump version and create git commit/tag
-$ version_assist bump --major --auto-commit     # Major version bump with git operations
-
 # Preview changes without making them
 $ version_assist bump --dry-run
 ```
 
-### Git Operations Behavior
+### Version Control
 
-By default, version bumps do NOT create git commits or tags:
+The tool provides two ways to create version commits and tags:
+
+1. Using the `commit` command (recommended):
+   ```sh
+   # First bump the version
+   $ version_assist bump --major
+   
+   # Then create the commit and tag
+   $ version_assist commit
+   ```
+
+2. Using the `--auto-commit` flag with bump (legacy):
+   ```sh
+   $ version_assist bump --major --auto-commit
+   ```
+
+Both approaches will:
+1. Stage pubspec.yaml with `git add`
+2. Create a commit with the message: `build(version): Bump version to {version}`
+3. Create a git tag with the version
+
+The separate `commit` command provides more flexibility and can be used independently:
 
 ```sh
-# No git operations (default)
-$ version_assist bump --major    # Only updates pubspec.yaml
+# Create version commit and tag
+$ version_assist commit
+
+# Preview commit without making changes
+$ version_assist commit --dry-run
+
+# Use custom pubspec path
+$ version_assist commit --path=/path/to/pubspec.yaml
 ```
 
-With `--auto-commit`, the tool will:
-1. Update the version in pubspec.yaml
-2. Create a git commit with the message:
-   ```
-   build(version): Bump version to {new_version}
-   ```
-3. Create a git tag with the new version
+### Update Version Badge
+
+Updates the version badge in README.md to match the current version in pubspec.yaml. This is useful for keeping your documentation in sync with your package version.
 
 ```sh
-# Automatic git operations
-$ version_assist bump --major --auto-commit
+# Update version badge
+$ version_assist badge
+
+# Preview changes without making them
+$ version_assist badge --dry-run
+
+# Use custom file paths
+$ version_assist badge --pubspec-path=/path/to/pubspec.yaml --readme-path=/path/to/README.md
 ```
+
+Options:
+- `--pubspec-path, -p`: Path to pubspec.yaml (default: pubspec.yaml)
+- `--readme-path, -r`: Path to README.md (default: README.md)
+- `--dry-run, -d`: Show what would happen without making changes
 
 ### Update CLI
 
@@ -171,7 +197,7 @@ For detailed information about our testing requirements (minimum 80% coverage), 
 ---
 
 [coverage_badge]: coverage_badge.svg
-[pub_version_badge]: https://img.shields.io/badge/pub-v0.0.1-blue
+[pub_version_badge]: https://img.shields.io/badge/pub-v1.1.0+2-blue
 [pub_package_link]: https://pub.dev/packages/version_assist
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license_link]: https://opensource.org/licenses/MIT
