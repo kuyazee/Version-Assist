@@ -97,6 +97,30 @@ $ version_assist bump --minor --no-build-number   # 1.0.0+1 -> 1.1.0
 $ version_assist bump --dry-run
 ```
 
+### Set Version
+
+Manually set a specific version number:
+
+```sh
+# Set version without build number
+$ version_assist set --version 2.0.0    # Sets version to 2.0.0
+
+# Set version with build number
+$ version_assist set --version 2.0.0+1  # Sets version to 2.0.0+1
+
+# Preview changes without making them
+$ version_assist set --version 2.0.0 --dry-run
+
+# Set version and create commit/tag
+$ version_assist set --version 2.0.0 --auto-commit
+```
+
+Options:
+- `--version, -v`: Version to set (required, format: x.y.z or x.y.z+build)
+- `--path, -p`: Path to pubspec.yaml (default: pubspec.yaml)
+- `--dry-run, -d`: Show what would happen without making changes
+- `--auto-commit`: Automatically commit and tag the version change
+
 ### Version Control
 
 The tool provides two ways to create version commits and tags:
@@ -196,7 +220,7 @@ For detailed information about our testing requirements (minimum 80% coverage), 
 ---
 
 [coverage_badge]: coverage_badge.svg
-[pub_version_badge]: https://img.shields.io/badge/pub-v1.1.0+2-blue
+[pub_version_badge]: https://img.shields.io/badge/pub-v1.3.0-blue
 [pub_package_link]: https://pub.dev/packages/version_assist
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license_link]: https://opensource.org/licenses/MIT

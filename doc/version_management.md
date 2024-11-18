@@ -12,6 +12,7 @@ If you've installed version_assist globally:
 
 ```bash
 version_assist bump [options]
+version_assist set [options]
 ```
 
 ### 2. Running Locally (During Development)
@@ -21,9 +22,11 @@ If you're working with the local source code:
 ```bash
 # From the version_assist directory
 dart run bin/version_assist.dart bump [options]
+dart run bin/version_assist.dart set [options]
 
 # Or from any directory, specify the full path
 dart run /path/to/version_assist/bin/version_assist.dart bump [options]
+dart run /path/to/version_assist/bin/version_assist.dart set [options]
 ```
 
 ## Version Format
@@ -50,19 +53,56 @@ Two formats available:
    - `dd`: Day (01-31)
    - `bn`: Build number for the day (00-99)
 
+## Version Management Commands
+
+### Bump Command
+
+The bump command incrementally updates version numbers based on semantic versioning rules:
+
+```bash
+# Semantic Version Bumping
+version_assist bump --major    # 1.0.0 -> 2.0.0
+version_assist bump --minor    # 1.0.0 -> 1.1.0
+version_assist bump --patch    # 1.0.0 -> 1.0.1
+```
+
+### Set Command
+
+The set command allows you to manually specify a version number:
+
+```bash
+# Set specific version
+version_assist set --version 2.0.0     # Sets to 2.0.0
+version_assist set --version 2.0.0+1   # Sets to 2.0.0+1
+
+# Preview changes
+version_assist set --version 2.0.0 --dry-run
+
+# Set version with auto-commit
+version_assist set --version 2.0.0 --auto-commit
+```
+
+Options:
+- `--version, -v`: Version to set (required, format: x.y.z or x.y.z+build)
+- `--path, -p`: Path to pubspec.yaml (default: pubspec.yaml)
+- `--dry-run, -d`: Show what would happen without making changes
+- `--auto-commit`: Automatically commit and tag the version change
+
 ## Git Operations
 
 ### Automatic Commit Control
 
-By default, version bumps do NOT automatically create git commits or tags. 
+By default, version changes do NOT automatically create git commits or tags. 
 Use the `--auto-commit` flag to enable automatic git operations.
 
 ```bash
-# Manually bump version without git operations (default behavior)
+# Manually change version without git operations (default behavior)
 version_assist bump --major
+version_assist set --version 2.0.0
 
-# Automatically commit and tag the version bump
+# Automatically commit and tag the version change
 version_assist bump --major --auto-commit
+version_assist set --version 2.0.0 --auto-commit
 ```
 
 When `--auto-commit` is used, the tool will:
@@ -85,6 +125,10 @@ version_assist bump --patch    # 1.0.0+1 -> 1.0.1+2
 version_assist bump --major --no-build-number-update  # 1.0.0 -> 2.0.0
 version_assist bump --minor --no-build-number-update  # 1.0.0 -> 1.1.0
 version_assist bump --patch --no-build-number-update  # 1.0.0 -> 1.0.1
+
+# Manual version setting
+version_assist set --version 2.0.0     # Sets to 2.0.0
+version_assist set --version 2.0.0+1   # Sets to 2.0.0+1
 ```
 
 ### Build Number Updates
@@ -110,8 +154,8 @@ version_assist bump --major --date-based-build-number --auto-commit  # 1.0.0+1 -
 # Minor version keeping current build number and auto-commit
 version_assist bump --minor --no-build-number-update --auto-commit   # 1.0.0+1 -> 1.1.0+1
 
-# Patch version without build number and auto-commit
-version_assist bump --patch --no-build-number-update --auto-commit   # 1.0.0 -> 1.0.1
+# Set specific version with auto-commit
+version_assist set --version 2.0.0 --auto-commit                     # Sets to 2.0.0 and creates commit/tag
 ```
 
 Note: 
@@ -123,11 +167,14 @@ Note:
 Use the dry-run option to preview changes without applying them:
 
 ```bash
-# Preview with build number
+# Preview bump with build number
 version_assist bump --major --dry-run                 # Shows: 1.0.0+1 -> 2.0.0+2
 
-# Preview without build number
+# Preview bump without build number
 version_assist bump --major --no-build-number-update --dry-run  # Shows: 1.0.0 -> 2.0.0
+
+# Preview set version
+version_assist set --version 2.0.0 --dry-run         # Shows: 1.0.0 -> 2.0.0
 ```
 
 ### Custom Pubspec Location
@@ -136,6 +183,7 @@ If your pubspec.yaml is not in the current directory:
 
 ```bash
 version_assist bump --path=/path/to/pubspec.yaml
+version_assist set --version 2.0.0 --path=/path/to/pubspec.yaml
 ```
 
 ## Examples
@@ -146,10 +194,12 @@ Starting version: `1.0.0`
 
 ```bash
 version_assist bump --major
+# or
+version_assist set --version 2.0.0
 ```
 
 Result:
-- New version: `2.0.0+1`
+- New version: `2.0.0`
 - No git operations performed
 
 ### Example 2: Package Version With Auto-Commit
@@ -158,12 +208,14 @@ Starting version: `1.0.0`
 
 ```bash
 version_assist bump --major --auto-commit
+# or
+version_assist set --version 2.0.0 --auto-commit
 ```
 
 Result:
-- New version: `2.0.0+1`
+- New version: `2.0.0`
 - Git commit created
-- Git tag '2.0.0+1' created
+- Git tag '2.0.0' created
 
 ### Example 3: Date-based Build with Auto-Commit
 
@@ -186,4 +238,6 @@ Result (if today is February 7, 2024):
    - You want to maintain a version without build number
    - You want to keep the current build number while updating the version
 4. Use `--auto-commit` when you want automatic git operations
-5. Remember to pull latest changes before bumping versions
+5. Remember to pull latest changes before changing versions
+6. Use the `set` command when you need to specify an exact version number
+7. Use the `bump` command for incremental version updates

@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- New `set` command to manually set version numbers
+  - Allows setting specific version numbers (e.g., `version_assist set --version 2.0.0`)
+  - Supports both formats: with and without build numbers
+  - Includes dry-run mode to preview changes
+  - Compatible with --auto-commit flag for version control
+  - Validates version format to ensure compliance
+
 - New `badge` command to update version badges in README.md
   - Command automatically syncs version badge with pubspec.yaml version
   - Supports dry-run mode to preview changes
