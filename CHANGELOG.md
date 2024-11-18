@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.2.0
+
+### Added
+
+- New `badge` command to update version badges in README.md
+  - Command automatically syncs version badge with pubspec.yaml version
+  - Supports dry-run mode to preview changes
+  - Configurable file paths for both pubspec.yaml and README.md
+  - Comprehensive error handling for missing files and invalid versions
+
+- New `commit` command for version control operations
+  - Creates commits and tags for versions independently
+  - Supports dry-run mode to preview changes
+  - Configurable pubspec.yaml path
+  - Integrated with existing --auto-commit functionality
+
+### Changed
+
+- Refactored git operations into separate commit command
+- Maintained backward compatibility with --auto-commit flag
+- Improved code reuse between bump and commit commands
+
 ## 1.1.0 - 2024-02-08
 
 ### Added
