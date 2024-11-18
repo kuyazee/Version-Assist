@@ -4,6 +4,7 @@ import 'package:args/command_runner.dart';
 import 'package:intl/intl.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:path/path.dart' as path;
+import 'package:version_assist/src/commands/commit_command.dart';
 
 /// {@template version_bump_command}
 /// A command which updates the version in pubspec.yaml
@@ -206,41 +207,17 @@ class VersionBumpCommand extends Command<int> {
 
       // Write back to file
       await file.writeAsString(newContent);
+      _logger.success('Successfully bumped version to $newVersion');
 
+      // Handle auto-commit if enabled
       if (autoCommit) {
-        // Run git commands
-        final gitAdd = await Process.run(
-          'git',
-          ['add', pubspecPath],
-        );
-        if (gitAdd.exitCode != 0) {
-          _logger.err('Error during git add: ${gitAdd.stderr}');
-          return ExitCode.software.code;
-        }
-
-        final commitMessage = 'build(version): Bump version to $newVersion';
-        final gitCommit = await Process.run(
-          'git',
-          ['commit', '-m', commitMessage, pubspecPath],
-        );
-
-        if (gitCommit.exitCode != 0) {
-          _logger.err('Error during git commit: ${gitCommit.stderr}');
-          return ExitCode.software.code;
-        }
-
-        final gitTag = await Process.run(
-          'git',
-          ['tag', newVersion],
-        );
-
-        if (gitTag.exitCode != 0) {
-          _logger.err('Error during git tag: ${gitTag.stderr}');
-          return ExitCode.software.code;
+        final commitCommand = CommitCommand(logger: _logger);
+        final commitResult = await commitCommand.run();
+        if (commitResult != ExitCode.success.code) {
+          return commitResult;
         }
       }
 
-      _logger.success('Successfully bumped version to $newVersion');
       return ExitCode.success.code;
     } catch (error) {
       _logger.err('$error');
