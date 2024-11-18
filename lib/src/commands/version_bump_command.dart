@@ -34,7 +34,8 @@ class VersionBumpCommand extends Command<int> {
       )
       ..addFlag(
         'no-build-number-update',
-        help: 'Keep the current build number or use version without build number',
+        help:
+            'Keep the current build number or use version without build number',
         negatable: false,
       )
       ..addFlag(
@@ -51,6 +52,10 @@ class VersionBumpCommand extends Command<int> {
         'patch',
         help: 'Bump patch version (0.0.x)',
         negatable: false,
+      )
+      ..addFlag(
+        'auto-commit',
+        help: 'Automatically commit and tag the version bump',
       );
   }
 
@@ -80,7 +85,8 @@ class VersionBumpCommand extends Command<int> {
   }
 
   /// Bumps the version number based on semver rules
-  String _bumpVersion(String version, {
+  String _bumpVersion(
+    String version, {
     bool major = false,
     bool minor = false,
     bool patch = false,
@@ -118,11 +124,14 @@ class VersionBumpCommand extends Command<int> {
       final isMinor = argResults?['minor'] as bool;
       final isPatch = argResults?['patch'] as bool;
       final noBuildNumberUpdate = argResults?['no-build-number-update'] as bool;
+      final autoCommit = argResults?['auto-commit'] as bool;
 
       // Validate version bump flags
-      final versionFlagCount = [isMajor, isMinor, isPatch].where((f) => f).length;
+      final versionFlagCount =
+          [isMajor, isMinor, isPatch].where((f) => f).length;
       if (versionFlagCount > 1) {
-        _logger.err('Only one of --major, --minor, or --patch can be specified');
+        _logger
+            .err('Only one of --major, --minor, or --patch can be specified');
         return ExitCode.usage.code;
       }
 
@@ -167,7 +176,8 @@ class VersionBumpCommand extends Command<int> {
           : baseVersion;
 
       // Determine if we should include a build number in the new version
-      final includeBuildNumber = !noBuildNumberUpdate || isDateBased || hasBuildNumber;
+      final includeBuildNumber =
+          !noBuildNumberUpdate || isDateBased || hasBuildNumber;
 
       String newVersion;
       if (includeBuildNumber) {
@@ -186,9 +196,8 @@ class VersionBumpCommand extends Command<int> {
           content.replaceFirst(versionPattern, 'version: $newVersion');
 
       if (isDryRun) {
-        final currentVersion = hasBuildNumber 
-            ? '$baseVersion+$currentBuildNumber'
-            : baseVersion;
+        final currentVersion =
+            hasBuildNumber ? '$baseVersion+$currentBuildNumber' : baseVersion;
         _logger.info(
           'Would bump version from $currentVersion to $newVersion',
         );
@@ -198,36 +207,37 @@ class VersionBumpCommand extends Command<int> {
       // Write back to file
       await file.writeAsString(newContent);
 
-      // Run git commands
-      final gitAdd = await Process.run(
-        'git',
-        ['add', pubspecPath],
-      );
-      if (gitAdd.exitCode != 0) {
-        _logger.err('Error during git add: ${gitAdd.stderr}');
-        return ExitCode.software.code;
-      }
+      if (autoCommit) {
+        // Run git commands
+        final gitAdd = await Process.run(
+          'git',
+          ['add', pubspecPath],
+        );
+        if (gitAdd.exitCode != 0) {
+          _logger.err('Error during git add: ${gitAdd.stderr}');
+          return ExitCode.software.code;
+        }
 
-      final commitMessage =
-          'build(version): Bump version to $newVersion';
-      final gitCommit = await Process.run(
-        'git',
-        ['commit', '-m', commitMessage, pubspecPath],
-      );
+        final commitMessage = 'build(version): Bump version to $newVersion';
+        final gitCommit = await Process.run(
+          'git',
+          ['commit', '-m', commitMessage, pubspecPath],
+        );
 
-      if (gitCommit.exitCode != 0) {
-        _logger.err('Error during git commit: ${gitCommit.stderr}');
-        return ExitCode.software.code;
-      }
+        if (gitCommit.exitCode != 0) {
+          _logger.err('Error during git commit: ${gitCommit.stderr}');
+          return ExitCode.software.code;
+        }
 
-      final gitTag = await Process.run(
-        'git',
-        ['tag', newVersion],
-      );
+        final gitTag = await Process.run(
+          'git',
+          ['tag', newVersion],
+        );
 
-      if (gitTag.exitCode != 0) {
-        _logger.err('Error during git tag: ${gitTag.stderr}');
-        return ExitCode.software.code;
+        if (gitTag.exitCode != 0) {
+          _logger.err('Error during git tag: ${gitTag.stderr}');
+          return ExitCode.software.code;
+        }
       }
 
       _logger.success('Successfully bumped version to $newVersion');
