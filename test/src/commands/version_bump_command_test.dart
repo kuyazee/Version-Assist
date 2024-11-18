@@ -285,7 +285,7 @@ version: 1.0.0+${datePrefix}01
       verify(() => logger.success(any())).called(1);
     });
 
-    test('auto-commits version bump without git verification', () async {
+    test('auto-commits version bump', () async {
       const testPubspec = '''
 name: test_app
 description: A test application
@@ -302,6 +302,9 @@ version: 1.0.0+1
       expect(exitCode, ExitCode.success.code);
       verify(() => logger.success('Successfully bumped version to 1.0.0+2'))
           .called(1);
+      verify(
+        () => logger.success('Successfully created version commit and tag for 1.0.0+2'),
+      ).called(1);
     });
   });
 }
