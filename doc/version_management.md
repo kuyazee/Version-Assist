@@ -50,6 +50,27 @@ Two formats available:
    - `dd`: Day (01-31)
    - `bn`: Build number for the day (00-99)
 
+## Git Operations
+
+### Automatic Commit Control
+
+By default, version bumps do NOT automatically create git commits or tags. 
+Use the `--auto-commit` flag to enable automatic git operations.
+
+```bash
+# Manually bump version without git operations (default behavior)
+version_assist bump --major
+
+# Automatically commit and tag the version bump
+version_assist bump --major --auto-commit
+```
+
+When `--auto-commit` is used, the tool will:
+1. Update the version in pubspec.yaml
+2. Stage the changes with `git add`
+3. Create a commit with the message: `build(version): Bump version to {new_version}`
+4. Create a git tag with the new version
+
 ## Usage Examples
 
 ### Semantic Version Updates
@@ -80,22 +101,22 @@ version_assist bump --no-build-number-update  # 1.0.0+1 -> 1.0.0+1
                                             # 1.0.0 -> 1.0.0
 ```
 
-### Combined Updates
-
-You can combine semantic version updates with build number options:
+### Combined Updates with Git Operations
 
 ```bash
-# Major version with date-based build number
-version_assist bump --major --date-based-build-number  # 1.0.0+1 -> 2.0.0+24020700
+# Major version with date-based build number and auto-commit
+version_assist bump --major --date-based-build-number --auto-commit  # 1.0.0+1 -> 2.0.0+24020700
 
-# Minor version keeping current build number
-version_assist bump --minor --no-build-number-update   # 1.0.0+1 -> 1.1.0+1
+# Minor version keeping current build number and auto-commit
+version_assist bump --minor --no-build-number-update --auto-commit   # 1.0.0+1 -> 1.1.0+1
 
-# Patch version without build number
-version_assist bump --patch --no-build-number-update   # 1.0.0 -> 1.0.1
+# Patch version without build number and auto-commit
+version_assist bump --patch --no-build-number-update --auto-commit   # 1.0.0 -> 1.0.1
 ```
 
-Note: `--date-based-build-number` and `--no-build-number-update` cannot be used together.
+Note: 
+- `--date-based-build-number` and `--no-build-number-update` cannot be used together
+- `--auto-commit` is optional and disabled by default
 
 ### Preview Changes
 
@@ -117,33 +138,9 @@ If your pubspec.yaml is not in the current directory:
 version_assist bump --path=/path/to/pubspec.yaml
 ```
 
-## Automatic Git Operations
-
-When you bump the version, the tool automatically:
-
-1. Updates the version in pubspec.yaml
-2. Creates a git commit with the message:
-   ```
-   build(version): Bump version to {new_version}
-   ```
-3. Creates a git tag with the new version
-
 ## Examples
 
-### Example 1: Package Version Without Build Number
-
-Starting version: `1.0.0`
-
-```bash
-version_assist bump --major --no-build-number-update
-```
-
-Result:
-- New version: `2.0.0`
-- Git commit created
-- Git tag '2.0.0' created
-
-### Example 2: Adding Build Number to Package Version
+### Example 1: Package Version Without Auto-Commit
 
 Starting version: `1.0.0`
 
@@ -153,34 +150,33 @@ version_assist bump --major
 
 Result:
 - New version: `2.0.0+1`
+- No git operations performed
+
+### Example 2: Package Version With Auto-Commit
+
+Starting version: `1.0.0`
+
+```bash
+version_assist bump --major --auto-commit
+```
+
+Result:
+- New version: `2.0.0+1`
 - Git commit created
 - Git tag '2.0.0+1' created
 
-### Example 3: Date-based Build for Today
+### Example 3: Date-based Build with Auto-Commit
 
 Starting version: `1.0.0+1`
 
 ```bash
-version_assist bump --date-based-build-number
+version_assist bump --date-based-build-number --auto-commit
 ```
 
 Result (if today is February 7, 2024):
 - New version: `1.0.0+24020700`
 - Git commit created
 - Git tag '1.0.0+24020700' created
-
-### Example 4: Minor Update Without Build Number
-
-Starting version: `1.0.0+1`
-
-```bash
-version_assist bump --minor --no-build-number-update
-```
-
-Result:
-- New version: `1.1.0+1`
-- Git commit created
-- Git tag '1.1.0+1' created
 
 ## Quick Tips
 
@@ -189,5 +185,5 @@ Result:
 3. Use `--no-build-number-update` when:
    - You want to maintain a version without build number
    - You want to keep the current build number while updating the version
-4. Remember to pull latest changes before bumping versions
-5. The tool automatically handles git operations, no need for manual commits
+4. Use `--auto-commit` when you want automatic git operations
+5. Remember to pull latest changes before bumping versions
