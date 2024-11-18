@@ -42,6 +42,7 @@ class VersionAssistCommandRunner extends CompletionCommandRunner<int> {
     addCommand(UpdateCommand(logger: _logger, pubUpdater: _pubUpdater));
     addCommand(VersionBumpCommand(logger: _logger));
     addCommand(UpdateBadgeCommand(logger: _logger));
+    addCommand(CommitCommand(logger: _logger));
   }
 
   @override
