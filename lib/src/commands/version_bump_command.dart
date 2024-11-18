@@ -189,18 +189,18 @@ class VersionBumpCommand extends Command<int> {
           : baseVersion;
 
       // Determine if we should include a build number in the new version
-      final includeBuildNumber = !noBuildNumber && (
-        hasBuildNumber || // Keep existing build number
-        isDateBased || // Add date-based build number
-        addBuildNumber // Explicitly add build number
-      );
+      final includeBuildNumber = !noBuildNumber &&
+          (hasBuildNumber || // Keep existing build number
+              isDateBased || // Add date-based build number
+              addBuildNumber // Explicitly add build number
+          );
 
       String newVersion;
       if (includeBuildNumber) {
         final newBuildNumber = isDateBased
             ? _generateDateBasedBuildNumber(currentBuildNumber ?? '1')
             : hasBuildNumber
-                ? ((int.parse(currentBuildNumber!) + 1).toString())
+                ? ((int.parse(currentBuildNumber) + 1).toString())
                 : '1';
         newVersion = '$newBaseVersion+$newBuildNumber';
       } else {

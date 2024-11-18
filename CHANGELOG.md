@@ -2,11 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 1.3.0
 
 ### Added
 
 - New `set` command to manually set version numbers
+
   - Allows setting specific version numbers (e.g., `version_assist set --version 2.0.0`)
   - Supports both formats: with and without build numbers
   - Includes dry-run mode to preview changes
@@ -14,6 +15,7 @@ All notable changes to this project will be documented in this file.
   - Validates version format to ensure compliance
 
 - New `badge` command to update version badges in README.md
+
   - Command automatically syncs version badge with pubspec.yaml version
   - Supports dry-run mode to preview changes
   - Configurable file paths for both pubspec.yaml and README.md
@@ -28,6 +30,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - **BREAKING**: Version bump behavior now preserves version format
+
   - No longer automatically adds build numbers
   - Use `--add-build-number` to explicitly add build numbers
   - Use `--no-build-number` to remove build numbers
