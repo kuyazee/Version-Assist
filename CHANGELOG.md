@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 1.2.0
+## Unreleased
 
 ### Added
 
@@ -19,6 +19,13 @@ All notable changes to this project will be documented in this file.
   - Integrated with existing --auto-commit functionality
 
 ### Changed
+
+- **BREAKING**: Version bump behavior now preserves version format
+  - No longer automatically adds build numbers
+  - Use `--add-build-number` to explicitly add build numbers
+  - Use `--no-build-number` to remove build numbers
+  - Existing versions with build numbers will maintain their format
+  - Improved compatibility with pub.dev versioning requirements
 
 - Refactored git operations into separate commit command
 - Maintained backward compatibility with --auto-commit flag

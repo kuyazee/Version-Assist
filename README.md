@@ -63,8 +63,8 @@ The tool supports several versioning options:
    - Patch version (0.0.x): Bug fixes, backwards compatible
 
 2. Version Formats:
-   - With build number: `1.0.0+1`
-   - Without build number: `1.0.0`
+   - Without build number: `1.0.0` (default)
+   - With build number: `1.0.0+1` (optional)
 
 3. Build Number Options:
    - Simple increment: Increases the build number by 1
@@ -79,20 +79,19 @@ For detailed information about version management, including examples and best p
 Basic usage examples:
 
 ```sh
-# Semantic Version Bumping (with build number)
-$ version_assist bump --major    # 1.0.0+1 -> 2.0.0+2
-$ version_assist bump --minor    # 1.0.0+1 -> 1.1.0+2
-$ version_assist bump --patch    # 1.0.0+1 -> 1.0.1+2
+# Semantic Version Bumping (preserves format)
+$ version_assist bump --major    # 1.0.0 -> 2.0.0
+$ version_assist bump --minor    # 1.0.0 -> 1.1.0
+$ version_assist bump --patch    # 1.0.0 -> 1.0.1
 
-# Semantic Version Bumping (without build number)
-$ version_assist bump --major --no-build-number-update  # 1.0.0 -> 2.0.0
-$ version_assist bump --minor --no-build-number-update  # 1.0.0 -> 1.1.0
-$ version_assist bump --patch --no-build-number-update  # 1.0.0 -> 1.0.1
+# Build Number Management
+$ version_assist bump --add-build-number          # 1.0.0 -> 1.0.0+1
+$ version_assist bump --date-based-build-number   # 1.0.0 -> 1.0.0+24020800
+$ version_assist bump --no-build-number           # 1.0.0+1 -> 1.0.0
 
-# Build Number Options
-$ version_assist bump                           # Simple increment
-$ version_assist bump --date-based-build-number # Date-based format
-$ version_assist bump --no-build-number-update  # Keep current build number
+# Combined Operations
+$ version_assist bump --major --add-build-number  # 1.0.0 -> 2.0.0+1
+$ version_assist bump --minor --no-build-number   # 1.0.0+1 -> 1.1.0
 
 # Preview changes without making them
 $ version_assist bump --dry-run
@@ -197,7 +196,7 @@ For detailed information about our testing requirements (minimum 80% coverage), 
 ---
 
 [coverage_badge]: coverage_badge.svg
-[pub_version_badge]: https://img.shields.io/badge/pub-v1.2.0-blue
+[pub_version_badge]: https://img.shields.io/badge/pub-v1.1.0+2-blue
 [pub_package_link]: https://pub.dev/packages/version_assist
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license_link]: https://opensource.org/licenses/MIT
