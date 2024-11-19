@@ -42,6 +42,15 @@ class CommitCommand extends Command<int> {
     return match?.group(1);
   }
 
+  /// Checks if a file is staged in git
+  Future<bool> _isFileStaged(String filePath) async {
+    final result = await Process.run(
+      'git',
+      ['diff', '--cached', '--name-only', filePath],
+    );
+    return (result.stdout as String).trim().isNotEmpty;
+  }
+
   @override
   Future<int> run() async {
     try {
@@ -71,14 +80,16 @@ class CommitCommand extends Command<int> {
         return ExitCode.success.code;
       }
 
-      // Run git commands
-      final gitAdd = await Process.run(
-        'git',
-        ['add', '.'],
-      );
-      if (gitAdd.exitCode != 0) {
-        _logger.err('Error during git add: ${gitAdd.stderr as String}');
-        return ExitCode.software.code;
+      // Only stage pubspec.yaml if it's not already staged
+      if (!await _isFileStaged(pubspecPath)) {
+        final gitAdd = await Process.run(
+          'git',
+          ['add', pubspecPath],
+        );
+        if (gitAdd.exitCode != 0) {
+          _logger.err('Error during git add: ${gitAdd.stderr as String}');
+          return ExitCode.software.code;
+        }
       }
 
       final commitMessage = 'build(version): Bump version to $version';

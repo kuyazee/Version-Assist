@@ -63,6 +63,7 @@ The tool supports several versioning options:
    - Patch version (0.0.x): Bug fixes, backwards compatible
 
 2. Version Formats:
+
    - Without build number: `1.0.0` (default)
    - With build number: `1.0.0+1` (optional)
 
@@ -116,6 +117,7 @@ $ version_assist set --version 2.0.0 --auto-commit
 ```
 
 Options:
+
 - `--version, -v`: Version to set (required, format: x.y.z or x.y.z+build)
 - `--path, -p`: Path to pubspec.yaml (default: pubspec.yaml)
 - `--dry-run, -d`: Show what would happen without making changes
@@ -126,10 +128,11 @@ Options:
 The tool provides two ways to create version commits and tags:
 
 1. Using the `commit` command (recommended):
+
    ```sh
    # First bump the version
    $ version_assist bump --major
-   
+
    # Then create the commit and tag
    $ version_assist commit
    ```
@@ -140,6 +143,7 @@ The tool provides two ways to create version commits and tags:
    ```
 
 Both approaches will:
+
 1. Stage pubspec.yaml with `git add`
 2. Create a commit with the message: `build(version): Bump version to {version}`
 3. Create a git tag with the version
@@ -173,6 +177,7 @@ $ version_assist badge --pubspec-path=/path/to/pubspec.yaml --readme-path=/path/
 ```
 
 Options:
+
 - `--pubspec-path, -p`: Path to pubspec.yaml (default: pubspec.yaml)
 - `--readme-path, -r`: Path to README.md (default: README.md)
 - `--dry-run, -d`: Show what would happen without making changes
@@ -220,7 +225,7 @@ For detailed information about our testing requirements (minimum 80% coverage), 
 ---
 
 [coverage_badge]: coverage_badge.svg
-[pub_version_badge]: https://img.shields.io/badge/pub-v1.3.0-blue
+[pub_version_badge]: https://img.shields.io/badge/pub-v1.3.1-blue
 [pub_package_link]: https://pub.dev/packages/version_assist
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license_link]: https://opensource.org/licenses/MIT

@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.3.1
+
+### Fixed
+
+- Fixed null safety issue in commit command when using `--auto-commit` flag
+- Improved git operations to properly stage and commit all relevant files during version bumps
+- Fixed commit command to preserve previously staged files instead of automatically staging all files
+
 ## 1.3.0
 
 ### Added
