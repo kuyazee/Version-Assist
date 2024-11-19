@@ -74,21 +74,21 @@ class CommitCommand extends Command<int> {
       // Run git commands
       final gitAdd = await Process.run(
         'git',
-        ['add', pubspecPath],
+        ['add', '.'],
       );
       if (gitAdd.exitCode != 0) {
-        _logger.err('Error during git add: ${gitAdd.stderr}');
+        _logger.err('Error during git add: ${gitAdd.stderr as String}');
         return ExitCode.software.code;
       }
 
       final commitMessage = 'build(version): Bump version to $version';
       final gitCommit = await Process.run(
         'git',
-        ['commit', '-m', commitMessage, pubspecPath],
+        ['commit', '-m', commitMessage],
       );
 
       if (gitCommit.exitCode != 0) {
-        _logger.err('Error during git commit: ${gitCommit.stderr}');
+        _logger.err('Error during git commit: ${gitCommit.stderr as String}');
         return ExitCode.software.code;
       }
 
@@ -98,7 +98,7 @@ class CommitCommand extends Command<int> {
       );
 
       if (gitTag.exitCode != 0) {
-        _logger.err('Error during git tag: ${gitTag.stderr}');
+        _logger.err('Error during git tag: ${gitTag.stderr as String}');
         return ExitCode.software.code;
       }
 
