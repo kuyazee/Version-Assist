@@ -1,4 +1,7 @@
-bump:
-	version_assist bump --patch
+patch_bump:
+	dart run bin/version_assist.dart bump --patch
 	flutter packages pub run build_runner build
-	version_assist badge
+	dart run bin/version_assist.dart badge
+	git add README.md
+	git add version.dart
+	dart run bin/version_assist.dart commit
