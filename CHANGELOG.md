@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.3.4
+
+### Changed
+
+- Improved command reusability by adding `runWith` method to CommitCommand
+- Refactored auto-commit functionality to use proper command parameters
+- Fixed null safety issues in command parameter handling
+
 ## 1.3.3
 
 ### Fixed

@@ -225,7 +225,7 @@ For detailed information about our testing requirements (minimum 80% coverage), 
 ---
 
 [coverage_badge]: coverage_badge.svg
-[pub_version_badge]: https://img.shields.io/badge/pub-v1.3.3-blue
+[pub_version_badge]: https://img.shields.io/badge/pub-v1.3.4-blue
 [pub_package_link]: https://pub.dev/packages/version_assist
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license_link]: https://opensource.org/licenses/MIT
