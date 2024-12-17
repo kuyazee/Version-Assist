@@ -14,7 +14,7 @@ class CommitCommand extends Command<int> {
     required Logger logger,
     GitClient? gitClient,
   })  : _logger = logger,
-       _gitClient = gitClient ?? const GitClient() {
+        _gitClient = gitClient ?? const GitClient() {
     argParser
       ..addOption(
         'path',
@@ -46,12 +46,13 @@ class CommitCommand extends Command<int> {
     return match?.group(1);
   }
 
-  @override
-  Future<int> run() async {
+  /// Runs the commit command with explicit parameters
+  /// This allows other commands to use the commit functionality directly
+  Future<int> runWith({
+    required String pubspecPath,
+    bool isDryRun = false,
+  }) async {
     try {
-      final pubspecPath = argResults?['path'] as String;
-      final isDryRun = argResults?['dry-run'] as bool;
-
       // Read pubspec.yaml
       final pubspecFile = File(pubspecPath);
       if (!await pubspecFile.exists()) {
@@ -105,5 +106,19 @@ class CommitCommand extends Command<int> {
       _logger.err('$error');
       return ExitCode.software.code;
     }
+  }
+
+  @override
+  Future<int> run() async {
+    final args = argResults;
+    if (args == null) {
+      _logger.err('No arguments provided');
+      return ExitCode.usage.code;
+    }
+
+    return runWith(
+      pubspecPath: args['path'] as String,
+      isDryRun: args['dry-run'] as bool,
+    );
   }
 }

@@ -234,9 +234,10 @@ class VersionBumpCommand extends Command<int> {
           logger: _logger,
           gitClient: _gitClient,
         );
-        // Set the path argument for the commit command
-        commitCommand.argParser.parse(['--path', pubspecPath]);
-        final commitResult = await commitCommand.run();
+        final commitResult = await commitCommand.runWith(
+          pubspecPath: pubspecPath,
+          isDryRun: isDryRun,
+        );
         if (commitResult != ExitCode.success.code) {
           return commitResult;
         }
