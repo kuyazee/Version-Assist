@@ -1,5 +1,5 @@
 name: version_assist
-description: A CLI tool to bump Flutter project versions
+description: A comprehensive CLI tool for managing version numbers in Flutter/Dart projects, supporting semantic versioning, build numbers, version control integration, and documentation updates.
 version: 1.3.3
 repository: https://github.com/kuyazee/VersionAssist
 homepage: https://github.com/kuyazee/VersionAssist
