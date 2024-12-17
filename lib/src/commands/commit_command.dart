@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:path/path.dart' as path;
+import 'package:version_assist/src/git_client.dart';
 
 /// {@template commit_command}
 /// A command which creates a version commit and tag
@@ -11,7 +12,9 @@ class CommitCommand extends Command<int> {
   /// {@macro commit_command}
   CommitCommand({
     required Logger logger,
-  }) : _logger = logger {
+    GitClient? gitClient,
+  })  : _logger = logger,
+       _gitClient = gitClient ?? const GitClient() {
     argParser
       ..addOption(
         'path',
@@ -28,6 +31,7 @@ class CommitCommand extends Command<int> {
   }
 
   final Logger _logger;
+  final GitClient _gitClient;
 
   @override
   String get description => 'Creates a version commit and tag';
@@ -40,15 +44,6 @@ class CommitCommand extends Command<int> {
     final versionPattern = RegExp(r'version:\s+(\d+\.\d+\.\d+(?:\+\d+)?)');
     final match = versionPattern.firstMatch(content);
     return match?.group(1);
-  }
-
-  /// Checks if a file is staged in git
-  Future<bool> _isFileStaged(String filePath) async {
-    final result = await Process.run(
-      'git',
-      ['diff', '--cached', '--name-only', filePath],
-    );
-    return (result.stdout as String).trim().isNotEmpty;
   }
 
   @override
@@ -81,11 +76,8 @@ class CommitCommand extends Command<int> {
       }
 
       // Only stage pubspec.yaml if it's not already staged
-      if (!await _isFileStaged(pubspecPath)) {
-        final gitAdd = await Process.run(
-          'git',
-          ['add', pubspecPath],
-        );
+      if (!await _gitClient.isFileStaged(pubspecPath)) {
+        final gitAdd = await _gitClient.stageFile(pubspecPath);
         if (gitAdd.exitCode != 0) {
           _logger.err('Error during git add: ${gitAdd.stderr as String}');
           return ExitCode.software.code;
@@ -93,20 +85,14 @@ class CommitCommand extends Command<int> {
       }
 
       final commitMessage = 'build(version): Bump version to $version';
-      final gitCommit = await Process.run(
-        'git',
-        ['commit', '-m', commitMessage],
-      );
+      final gitCommit = await _gitClient.commit(commitMessage);
 
       if (gitCommit.exitCode != 0) {
         _logger.err('Error during git commit: ${gitCommit.stderr as String}');
         return ExitCode.software.code;
       }
 
-      final gitTag = await Process.run(
-        'git',
-        ['tag', version],
-      );
+      final gitTag = await _gitClient.tag(version);
 
       if (gitTag.exitCode != 0) {
         _logger.err('Error during git tag: ${gitTag.stderr as String}');

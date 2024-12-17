@@ -4,6 +4,7 @@ import 'package:cli_completion/cli_completion.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:pub_updater/pub_updater.dart';
 import 'package:version_assist/src/commands/commands.dart';
+import 'package:version_assist/src/git_client.dart';
 import 'package:version_assist/src/version.dart';
 
 const executableName = 'version_assist';
@@ -22,8 +23,10 @@ class VersionAssistCommandRunner extends CompletionCommandRunner<int> {
   VersionAssistCommandRunner({
     Logger? logger,
     PubUpdater? pubUpdater,
+    GitClient? gitClient,
   })  : _logger = logger ?? Logger(),
         _pubUpdater = pubUpdater ?? PubUpdater(),
+        _gitClient = gitClient ?? const GitClient(),
         super(executableName, description) {
     // Add root options and flags
     argParser
@@ -43,7 +46,7 @@ class VersionAssistCommandRunner extends CompletionCommandRunner<int> {
     addCommand(VersionBumpCommand(logger: _logger));
     addCommand(VersionSetCommand(logger: _logger));
     addCommand(UpdateBadgeCommand(logger: _logger));
-    addCommand(CommitCommand(logger: _logger));
+    addCommand(CommitCommand(logger: _logger, gitClient: _gitClient));
   }
 
   @override
@@ -51,6 +54,7 @@ class VersionAssistCommandRunner extends CompletionCommandRunner<int> {
 
   final Logger _logger;
   final PubUpdater _pubUpdater;
+  final GitClient _gitClient;
 
   @override
   Future<int> run(Iterable<String> args) async {
