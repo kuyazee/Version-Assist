@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:path/path.dart' as path;
 import 'package:version_assist/src/commands/commit_command.dart';
+import 'package:version_assist/src/git_client.dart';
 
 /// {@template version_bump_command}
 /// A command which updates the version in pubspec.yaml
@@ -13,7 +14,9 @@ class VersionBumpCommand extends Command<int> {
   /// {@macro version_bump_command}
   VersionBumpCommand({
     required Logger logger,
-  }) : _logger = logger {
+    GitClient? gitClient,
+  })  : _logger = logger,
+        _gitClient = gitClient ?? const GitClient() {
     argParser
       ..addOption(
         'path',
@@ -65,6 +68,7 @@ class VersionBumpCommand extends Command<int> {
   }
 
   final Logger _logger;
+  final GitClient _gitClient;
 
   @override
   String get description => 'Updates the version in pubspec.yaml';
@@ -226,7 +230,12 @@ class VersionBumpCommand extends Command<int> {
 
       // Handle auto-commit if enabled
       if (autoCommit) {
-        final commitCommand = CommitCommand(logger: _logger);
+        final commitCommand = CommitCommand(
+          logger: _logger,
+          gitClient: _gitClient,
+        );
+        // Set the path argument for the commit command
+        commitCommand.argParser.parse(['--path', pubspecPath]);
         final commitResult = await commitCommand.run();
         if (commitResult != ExitCode.success.code) {
           return commitResult;

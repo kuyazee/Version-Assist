@@ -43,7 +43,7 @@ class VersionAssistCommandRunner extends CompletionCommandRunner<int> {
 
     // Add sub commands
     addCommand(UpdateCommand(logger: _logger, pubUpdater: _pubUpdater));
-    addCommand(VersionBumpCommand(logger: _logger));
+    addCommand(VersionBumpCommand(logger: _logger, gitClient: _gitClient));
     addCommand(VersionSetCommand(logger: _logger));
     addCommand(UpdateBadgeCommand(logger: _logger));
     addCommand(CommitCommand(logger: _logger, gitClient: _gitClient));
